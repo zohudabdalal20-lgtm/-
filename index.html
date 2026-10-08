@@ -1,0 +1,540 @@
+
+import os
+
+# محتوى صفحة HTML والتصميم واللغة البرمجية JS
+html_content = """<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المهندسة سارة عبد العال | Portfolio</title>
+    
+    <!-- خطوط جوجل (Cairo) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- أيقونات FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* --- المتغيرات والتنسيقات العامة --- */
+        :root {
+            --bg-color: #0d1117;
+            --card-bg: #161b22;
+            --primary-color: #00d2ff;
+            --secondary-color: #3a7bd5;
+            --text-color: #f0f6fc;
+            --text-secondary: #8b949e;
+            --accent-glow: rgba(0, 210, 255, 0.25);
+            --border-color: #30363d;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Cairo', sans-serif;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* --- خلفية متحركة جميلة --- */
+        .background-blob {
+            position: fixed;
+            top: -10%;
+            right: -10%;
+            width: 500px;
+            height: 500px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            filter: blur(150px);
+            opacity: 0.2;
+            z-index: -1;
+            border-radius: 50%;
+            animation: float 8s ease-in-out infinite alternate;
+        }
+
+        .background-blob2 {
+            position: fixed;
+            bottom: -10%;
+            left: -10%;
+            width: 400px;
+            height: 400px;
+            background: linear-gradient(135deg, #8a2be2, var(--primary-color));
+            filter: blur(150px);
+            opacity: 0.15;
+            z-index: -1;
+            border-radius: 50%;
+            animation: float 10s ease-in-out infinite alternate-reverse;
+        }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(-50px, 50px) scale(1.1); }
+        }
+
+        /* --- القائمة العلوية --- */
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 20px 8%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(13, 17, 23, 0.85);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(45deg, var(--primary-color), #ffffff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 25px;
+        }
+
+        nav a {
+            color: var(--text-color);
+            text-decoration: none;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+
+        nav a:hover {
+            color: var(--primary-color);
+            text-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        /* --- القسم الرئيسي (Hero Section) --- */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 8%;
+            padding-top: 80px;
+        }
+
+        .hero-text {
+            max-width: 600px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 16px;
+            background: rgba(0, 210, 255, 0.1);
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .hero-text h1 {
+            font-size: 3.2rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            line-height: 1.2;
+        }
+
+        .hero-text h1 span {
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-text p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+        }
+
+        .cta-btns {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 12px 28px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: 0.3s ease;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            color: #fff;
+            border: none;
+            box-shadow: 0 4px 15px var(--accent-glow);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px var(--accent-glow);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        /* صُورة الإطار والتأثير البصري */
+        .hero-avatar {
+            position: relative;
+            width: 320px;
+            height: 320px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 0 50px var(--accent-glow);
+        }
+
+        .hero-avatar-inner {
+            width: 308px;
+            height: 308px;
+            background-color: var(--card-bg);
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .hero-avatar-inner i {
+            font-size: 5rem;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        /* --- الأقسام المشتركة --- */
+        section {
+            padding: 100px 8%;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.2rem;
+            margin-bottom: 50px;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 60px;
+            height: 4px;
+            background: var(--primary-color);
+            margin: 10px auto 0;
+            border-radius: 2px;
+        }
+
+        /* --- قسم المهارات --- */
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+        }
+
+        .skill-card {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+            transition: 0.3s;
+        }
+
+        .skill-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary-color);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+        }
+
+        .skill-card i {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+
+        /* --- قسم المشاريع --- */
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .project-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            transition: 0.3s;
+        }
+
+        .project-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary-color);
+        }
+
+        .project-info {
+            padding: 20px;
+        }
+
+        .project-info h3 {
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+
+        .project-info p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        /* --- التواصل --- */
+        .contact-content {
+            text-align: center;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .social-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-color);
+            font-size: 1.2rem;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+
+        .social-icon:hover {
+            background: var(--primary-color);
+            color: #000;
+            transform: scale(1.1);
+        }
+
+        /* --- الفوتر --- */
+        footer {
+            text-align: center;
+            padding: 20px;
+            background: #090d12;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* تجاوب مع الشاشات الصغيرة */
+        @media (max-width: 768px) {
+            .hero {
+                flex-direction: column;
+                text-align: center;
+                gap: 40px;
+            }
+            .hero-text h1 { font-size: 2.3rem; }
+            .cta-btns { justify-content: center; }
+            nav ul { display: none; } /* يمكن إضافة قائمة برجر برمجياً */
+        }
+    </style>
+</head>
+<body>
+
+    <!-- الخلفيات المتحركة -->
+    <div class="background-blob"></div>
+    <div class="background-blob2"></div>
+
+    <!-- الهيدر / القائمة العلوية -->
+    <header>
+        <div class="logo">م. سارة عبد العال</div>
+        <nav>
+            <ul>
+                <li><a href="#home">الرئيسية</a></li>
+                <li><a href="#about">عنّي</a></li>
+                <li><a href="#skills">المهارات</a></li>
+                <li><a href="#projects">المشاريع</a></li>
+                <li><a href="#contact">التواصل</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- القسم الرئيسي -->
+    <section id="home" class="hero">
+        <div class="hero-text">
+            <span class="badge">أهلاً بك في عالمي الهندسي ✨</span>
+            <h1>أنا <span>المهندسة سارة عبد العال</span></h1>
+            <p id="typing-text"></p>
+            <div class="cta-btns">
+                <a href="#contact" class="btn btn-primary"><i class="fas fa-paper-plane"></i> تواصل معي</a>
+                <a href="#projects" class="btn btn-secondary"><i class="fas fa-briefcase"></i> أعمالي</a>
+            </div>
+        </div>
+        <div class="hero-avatar">
+            <div class="hero-avatar-inner">
+                <i class="fas fa-user-astronaut"></i>
+                <h3 style="color: var(--text-color);">م. سارة</h3>
+            </div>
+        </div>
+    </section>
+
+    <!-- قسم المهارات -->
+    <section id="skills">
+        <h2 class="section-title">المهارات والتقنيات</h2>
+        <div class="skills-grid">
+            <div class="skill-card">
+                <i class="fas fa-code"></i>
+                <h3>تطوير الويب</h3>
+                <p>HTML5, CSS3, JavaScript</p>
+            </div>
+            <div class="skill-card">
+                <i class="fab fa-python"></i>
+                <h3>برمجة Python</h3>
+                <p>تطوير السكربتات والحلول البرمجية</p>
+            </div>
+            <div class="skill-card">
+                <i class="fas fa-laptop-code"></i>
+                <h3>التفكير الهندسي</h3>
+                <p>تحليل المشكلات وتصميم الأنظمة</p>
+            </div>
+            <div class="skill-card">
+                <i class="fas fa-brain"></i>
+                <h3>التعلم المستمر</h3>
+                <p>مواكبة أحدث التقنيات البرمجية</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- قسم المشاريع -->
+    <section id="projects">
+        <h2 class="section-title">أبرز المشاريع</h2>
+        <div class="projects-grid">
+            <div class="project-card">
+                <div class="project-info">
+                    <h3>مشروع الذكاء الاصطناعي</h3>
+                    <p>تطوير نموذج برميجي يحلل البيانات ويوفر استنتاجات هندسية دقيقة باستخدام البايثون.</p>
+                </div>
+            </div>
+            <div class="project-card">
+                <div class="project-info">
+                    <h3>تطبيق ويب متكامل</h3>
+                    <p>تصميم واجهة مستخدم حديثة وسريعة مع ربطها بقواعد البيانات لتقديم أفضل تجربة للمستخدم.</p>
+                </div>
+            </div>
+            <div class="project-card">
+                <div class="project-info">
+                    <h3>نظام أتمتة البيانات</h3>
+                    <p>سكربت بايتون مخصص لتسهيل وتنسيق المهمات اليومية بكفاءة عالية.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- قسم التواصل -->
+    <section id="contact">
+        <h2 class="section-title">تواصل معي</h2>
+        <div class="contact-content">
+            <p>يسعدني دائماً التواصل لبناء مشاريع جديدة أو الاستفسار عن الحلول الهندسية البرمجية.</p>
+            <div class="social-links">
+                <a href="#" class="social-icon" title="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                <a href="#" class="social-icon" title="GitHub"><i class="fab fa-github"></i></a>
+                <a href="#" class="social-icon" title="Twitter"><i class="fab fa-x-twitter"></i></a>
+                <a href="mailto:sara@example.com" class="social-icon" title="Email"><i class="fas fa-envelope"></i></a>
+            </div>
+        </div>
+    </section>
+
+    <!-- الفوتر -->
+    <footer>
+        <p>جميع الحقوق محفوظة © 2026 | تم التطوير بـ ❤️ للمهندسة سارة عبد العال</p>
+    </footer>
+
+    <!-- تفاعلية JavaScript -->
+    <script>
+        // تأثير الكتابة التلقائية (Typewriter Effect)
+        const textArray = [
+            "مهندسة شغوفة بالتكنولوجيا والبرمجة.",
+            "أبتكر حلولاً برمجية وتصاميم ويب إبداعية.",
+            "أحور الأفكار إلى واقع رقمي متميز."
+        ];
+        let textIndex = 0;
+        let charIndex = 0;
+        const typingElement = document.getElementById("typing-text");
+
+        function type() {
+            if (charIndex < textArray[textIndex].length) {
+                typingElement.textContent += textArray[textIndex].charAt(charIndex);
+                charIndex++;
+                setTimeout(type, 80);
+            } else {
+                setTimeout(erase, 2000);
+            }
+        }
+
+        function erase() {
+            if (charIndex > 0) {
+                typingElement.textContent = textArray[textIndex].substring(0, charIndex - 1);
+                charIndex--;
+                setTimeout(erase, 40);
+            } else {
+                textIndex = (textIndex + 1) % textArray.length;
+                setTimeout(type, 500);
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            setTimeout(type, 1000);
+        });
+    </script>
+</body>
+</html>
+"""
+
+# حفظ الملف بصيغة HTML
+filename = "sara_abdelaal_portfolio.html"
+
+with open(filename, "w", encoding="utf-8") as file:
+    file.write(html_content)
+
+print(f"✨ تم إنشاء صفحة المهندسة سارة عبد العال بنجاح!")
+print(f"📂 اسم الملف: {filename}")
+print("💡 يمكنك الآن فتح هذا الملف في متصفحك (Chrome/Edge/Firefox) لمعاينة الصفحة.")
